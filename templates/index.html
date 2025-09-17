@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DreamHouse - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <!-- <link rel="stylesheet" href="/static/css/style.css"> -->
+</head>
+<body>
+  <style>
+        body {                    
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: #333;
+      overflow-x: hidden;
+      animation: backgroundAnimation 6s infinite alternate;
+    }
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+    .hidden {
+      display: none;
+    }
+    @keyframes backgroundAnimation {
+      0% {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+      }
+      50% {
+        background: linear-gradient(135deg, #34cceb, #6a11cb);
+      }
+      100% {
+        background: linear-gradient(135deg, #2575fc, #34cceb);
+      }
+    }
+    header {
+      background: linear-gradient(to right, #007bff, #0056b3);
+      color: white;
+      transition: background 0.3s ease;
+    }
+    .sidebar {
+      height: 100vh;
+      width: 250px;
+      background: linear-gradient(to bottom, #343a40, #23272b);
+      position: fixed;
+      top: 0;
+      left: 0;
+      overflow-y: auto;
+      transition: all 0.4s ease;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+    .sidebar.collapsed {
+  transform: translateX(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease;
+    }
+    .collapsed + .main-content {
+  margin-left: 0;
+  width: 100%;
+    }
+.toggle-btn {
+  position: fixed; 
+  top: 10px; 
+  left: 10px; 
+  background: linear-gradient(to right, #007bff, #0056b3);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  z-index: 1100;
+  transition: all 0.3s ease;
+}
+  @keyframes slideIn {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+    .sidebar ul li {
+      padding: 15px 20px;
+      text-align: left;
+      transition: background 0.3s ease, transform 0.3s ease;
+      position: relative;
+    }
+    .sidebar ul li:hover {
+      background: rgba(0, 123, 255, 0.8);
+      transform: translateX(10px);
+    }
+    .sidebar ul li::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      height: 5px;
+      width: 0;
+      background: white;
+      transition: width 0.3s ease;
+    }
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      display: block;
+    }
+    .main-content {
+      margin-left: 250px;
+      transition: all 0.4s ease;
+      padding: 20px;
+    }
+    .collapsed + .main-content {
+      margin-left: 80px;
+    }
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      left: 260px;
+      background: linear-gradient(to right, #007bff, #0056b3);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+    .toggle-btn.collapsed {
+      left: 90px;
+    }
+    .hero {
+      color: white;
+      padding: 100px 0;
+      background: rgba(0, 0, 0, 0.5);
+      text-align: center;
+      animation: fadeIn 1.5s ease;
+    }
+    .hero h2 {
+      animation: bounceIn 1.2s ease;
+    }
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    .form-section {
+      background: linear-gradient(to bottom right, #ffffff, #f0f0f0);
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      padding: 40px;
+      transition: transform 0.4s ease;
+    }
+    .form-section:hover {
+      transform: scale(1.05);
+    }
+    footer {
+      background: linear-gradient(to right, #343a40, #23272b);
+      color: white;
+      padding: 20px 0;
+      animation: footerFadeIn 2s ease;
+    }
+    @keyframes footerFadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    .footer-links a {
+      color: #17a2b8;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .profile-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+    .card {
+      border: none;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, #007bff, #0056b3);
+      animation: slideGlow 3s infinite alternate;
+    }
+    @keyframes slideGlow {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+  </style>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="https://source.unsplash.com/60x60/?person" alt="Profile" class="profile-img">
+      <h5>UserName</h5>
+      <p class="text-muted">e-mail</p>
+    </div>
+    <ul>
+      <li><a href="#form-section">🏡 Home</a></li>
+      <li><a href="#features">📌 Features</a></li>
+      <li><a href="#dashboard">📋 Dashboard</a></li>
+      <li><a href="#settings">⚙️ Settings</a></li>
+      <li><a href="#contact">📞 Contact</a></li>
+    </ul>
+  </div>
+  <div class="main-content" id="mainContent">
+    <button class="toggle-btn" id="toggleBtn" type="button">☰</button>
+    <section class="hero">
+      <div class="container">
+        <h2>Welcome to DreamHouse</h2>
+        <p class="lead">Discover the perfect house design tailored to your needs and preferences.</p>
+      </div>
+    </section>
+    <section id="features" class="py-5 text-center">
+      <div class="container">
+        <h2 class="mb-4">Why Choose DreamHouse?</h2>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Customizable Designs</h5>
+                <p class="card-text">Find house designs that match your unique style.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Modern Architecture</h5>
+                <p class="card-text">Explore designs that include modern and minimalist themes.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Affordable Options</h5>
+                <p class="card-text">Get the perfect design while staying within your budget.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="form-section" class="py-5">
+      <div class="container">
+        <h1 class="text-center mb-4"> House Design Recommendation</h1>
+        <div class="form-section">
+          <form id="design-form" class="row g-3">
+            <div class="col-md-6">
+              <label for="rooms" class="form-label">Number of Rooms:</label>
+              <input type="number" id="rooms" name="rooms" min="1" class="form-control" placeholder="max:6" required>
+            </div>
+            <div class="col-md-6">
+              <label for="floors" class="form-label">Number of Floors:</label>
+              <input type="number" id="floors" name="floors" class="form-control" min="1" placeholder="max:2" required>
+            </div>
+            <div class="col-md-6">
+              <label for="style" class="form-label">Preferred Style:</label>
+              <select id="style" name="style" class="form-select" required>
+                <option value="" disabled selected>Select Style</option>
+                <option value="Modern">Modern</option>
+                <option value="Traditional">Traditional</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label for="budget" class="form-label">Budget:</label>
+              <select id="budget" name="budget" class="form-select" required>
+                <option value="" disabled selected>Select Budget</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="location" class="form-label">Location:</label>
+              <button type="button" id="showMapBtn" class="btn btn-secondary">Select Location</button>
+        <input type="text" id="location" name="location" class="form-control mt-2" placeholder="Select a location" readonly required>
+        <div id="map" class="mt-3 hidden"></div>
+      </div>
+            <div class="col-12 text-center">
+              <button type="submit" class="btn btn-primary btn-lg" onclick="submitForm()">Get Recommendation</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+  <footer id="contact" class="text-white text-center py-4">
+    <div class="container">
+      <p>&copy; 2025 DreamHouse. All rights reserved.</p>
+      <p>Follow us on:
+        <a href="#" class="footer-links">Facebook</a>
+        <a href="#" class="footer-links">Twitter</a>
+        <a href="#" class="footer-links">Instagram</a>
+      </p>
+    </div>
+  </footer>
+  <link rel="stylesheet" href="/static/css/styleview.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const toggleBtn = document.getElementById('toggleBtn');
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  mainContent.classList.toggle('collapsed');
+  toggleBtn.classList.toggle('collapsed');
+});
+    const showMapBtn = document.getElementById('showMapBtn');
+    const mapDiv = document.getElementById('map');
+    const locationInput = document.getElementById('location');
+    const houseForm = document.getElementById('houseForm');
+    let selectedMarker;
+    showMapBtn.addEventListener('click', () => {
+      mapDiv.classList.toggle('hidden');
+      if (!mapDiv.classList.contains('hidden')) {
+        const map = L.map('map').setView([20.5937, 78.9629], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        map.on('click', function (e) {
+          const lat = e.latlng.lat.toFixed(5);
+          const lng = e.latlng.lng.toFixed(5);
+          if (selectedMarker) {
+            map.removeLayer(selectedMarker);
+          }
+          selectedMarker = L.marker([lat, lng]).addTo(map);
+          locationInput.value = `${lat}, ${lng}`;
+          selectedMarker.bindPopup(`Latitude: ${lat}, Longitude: ${lng}`).openPopup();
+        });
+      }
+    });
+document.getElementById('design-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const userInput = Object.fromEntries(formData);
+  try {
+    const response = await fetch('/recommend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userInput)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const result = await response.json();
+    const outputDiv = document.createElement('div');
+    document.querySelector('#form-section').appendChild(outputDiv);
+    outputDiv.innerHTML = '';
+    if (result.success) {
+      outputDiv.innerHTML = 
+        `<p>🏡 Your 3d-Model is generated! Click below to view:</p>
+        <button id="viewModelBtn" class="btn btn-success">View 3D Model</button>`;
+      document.getElementById('viewModelBtn').addEventListener('click', () => {
+const viewerUrl = `/viewer?model=${encodeURIComponent(result.model_path.replace(/^\/static\//, ''))}`;
+        window.location.href = viewerUrl;
+      });
+    } else {
+      outputDiv.innerHTML = `<p>❌ No matching model found. Please try different inputs.</p>`;
+    }
+  } catch (error) {
+    console.error('Error fetching recommendation:', error);
+    alert('An error occurred while searching for a matching model.');
+  }
+});
+function submitForm() {
+    console.log("Submitting form...");
+}
+document.getElementById("getRecommendationBtn").onclick = submitForm;
+  </script>
+</body>
+</html>

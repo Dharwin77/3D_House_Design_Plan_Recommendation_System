@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D House Viewer</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <!-- <link rel="stylesheet" href="styleview.css"> -->
+</head>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("{{ url_for('static', filename='download.jpg') }}") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    model-viewer {
+      width: 80%;
+      height: 500px;
+      margin: 20px auto;
+      display: block;
+      background-color: #383434;
+  }
+  .output-container {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    justify-content: center; 
+    text-align: center;      
+    height: 100vh;        
+}
+#viewModelBtn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#viewModelBtn:hover {
+    background-color: #218838;
+}
+    .container {
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.9);
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #0056b3;
+    }
+    .details-section p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+    .details-section strong {
+      color: #0056b3;
+    }
+    .generate-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      font-size: 1.2rem;
+      color: #fff;
+      background-color: #28a745;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .generate-btn:hover {
+      background-color: #218838;
+    }
+</style>
+<body>
+    <h1>🏡 3D House Model Viewer</h1>
+    <model-viewer id="modelViewer" alt="3D House Model" auto-rotate camera-controls></model-viewer>
+    <p>📂 <strong>Model Path:</strong> <span id="modelPath"></span></p>
+    <button type="button" onclick="history.back()">⬅️ Go Back</button>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    let modelPath = urlParams.get("model");
+    if (!modelPath) {
+        console.error("No model specified.");
+        return;
+    }
+    modelPath = "/static/" + modelPath;
+    console.log("Loading model:", modelPath);
+    document.getElementById("modelViewer").setAttribute("src", modelPath);
+    document.getElementById("modelPath").textContent = modelPath;
+});
+    </script>
+</body>
+</html>
